@@ -1,7 +1,15 @@
+var callMsg;
 var app ={};
 app.dataStore;
 app.server = 'https://api.parse.com/1/classes/chatterbox?order=-createdAt';
-app.init = function (){};
+app.init = function (){
+  $(document).ready(function(){
+    app.fetch();
+    setTimeout(function(){
+      callMsg();
+    },3000);
+  })
+};
 app.send = function (message){  //this is sendMsg()
   $.ajax({
     // always use this url
@@ -46,8 +54,34 @@ app.addMessage = function (message){
 };
 app.addRoom = function (room){
   $('#roomSelect').append('<div>'+ room + '</div>');
-
 };
+
+app.addFriend = function(name){
+  var collection = $('.username')
+  console.log('friend added');
+  for (var i =0; i< collection.length; i++){
+    if (collection[i].innerHTML === name){
+      $(collection[i]).siblings().toggleClass('bold');
+    }
+  }
+  var restore = function(){};
+}
+app.addFriend.called = function(){ return true; };
+
+app.handleSubmit =function(){
+    var message = {
+      'username': 'WaterBottle',
+      'roomname': '4chan'
+    };
+    message.username= $(".userName").val();
+    message.text = $(".textbox").val();
+    message.roomname=$(".roomName").val();
+    app.send(message);
+
+}
+app.callMsg = function(){
+
+}
 
 $(document).ready(function (){
   // YOUR CODE HERE:
@@ -63,16 +97,8 @@ $(document).ready(function (){
   //   }
   // };
 
-   $(".post").click(function (){
-    var message = {
-      'username': 'WaterBottle',
-      'roomname': '4chan'
-    };
-    message.username= $(".userName").val();
-    message.text = $(".textbox").val();
-    message.roomname=$(".roomName").val();
-    console.log(message);
-    app.send(message);
+  $(".submit").submit(function (){
+    app.handleSubmit();
   });
 
 
@@ -87,32 +113,45 @@ $(document).ready(function (){
     app.fetch();
     callMsg();
   });
-  app.fetch();
-  var callMsg = function(num){
+
+
+  callMsg = function(num){
     num = num || 0;
 
     for (var i  = num; i< app.dataStore.length; i++){
-      var rName = app.dataStore[i].objectId;
+      var rName = app.dataStore[i].roomname;
 
       if( !rooms.hasOwnProperty(rName)){
         rooms[rName] = 1;
       } else {
         rooms[rName] += 1;
       }
+      // debugger;
       $('.messages').append('<div class="msgs"></div');
-      $($('.msgs')[i]).text(app.dataStore[i].username+" "+ app.dataStore[i].createdAt).append('<p></p>');
+      $($('.msgs')[i]).append('<span class="username"></span><p></p>')
+      $( $('.username')[i] ).text(app.dataStore[i].username).on('click', function() {
+        app.addFriend(this.innerHTML);
+      });
       $($('p')[i]).text(app.dataStore[i].text);
       // $('.messages').append('<div>' + filter(app.dataStore[i].username)+ " : "+ filter(app.dataStore[i].createdAt) + '<p>'+ filter(app.dataStore[i].text)+'</p>'+'</div>');
     }
-
+    // $('.username').on('click', function(){
+    //   app.addFriend(this.innerHTML);
+    // })
+    var i = 0;
     for( var key in rooms ){
-      console.log(key);
-      $('.dropList').append('<option>'+ key +'</option>');
+      $('.dropList').append('<option class="rooms"></option>');
+      $($('.rooms')[i]).text(key);
+      i += 1;
     }
   }
- setTimeout(function(){
-  callMsg();
- },3000);
+
+  $('.dropL').click(function(){
+    console.log('got clicked');
+    app.addFriend(this.innerHTML);
+  })
+
+
 
 
   // postLots();
