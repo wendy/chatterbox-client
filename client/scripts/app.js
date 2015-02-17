@@ -1,2 +1,107 @@
-// YOUR CODE HERE:
+var dataCopy;
+$(document).ready(function (){
+  // YOUR CODE HERE:
+  var postLots = function (){
+    for (var i = 0; i<100; i++){
+      var message = {
+        'username': 'WaterBottle',
+        'roomname': '4chan'
+      };
+      message.text = "All your base are belong to US!";
+      console.log(message);
+      sendMsg(message);
+    }
+  };
+
+  $(".post").click(function (){
+    var message = {
+      'username': 'WaterBottle',
+      'roomname': '4chan'
+    };
+    message.username= $(".userName").val();
+    message.text = $(".textbox").val();
+    message.roomname=$(".roomName").val();
+    console.log(message);
+    sendMsg(message);
+  });
+
+  var sendMsg = function(message){
+    $.ajax({
+      // always use this url
+      url: 'https://api.parse.com/1/classes/chatterbox',
+      type: 'POST',
+      data: JSON.stringify(message),
+      contentType: 'application/json',
+      success: function (data) {
+        console.log('chatterbox: Message sent');
+      },
+      error: function (data) {
+        // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+        console.error('chatterbox: Failed to send message');
+      }
+    });
+  }
+
+  var dataStore;
+  var getMsg = function(){
+    $.ajax({
+      // always use this url
+      url: 'https://api.parse.com/1/classes/chatterbox?order=-createdAt',
+      type: 'GET',
+      data: 'JSON',
+      contentType: 'application/json',
+      success: function (data) {
+        console.log('chatterbox: Get work');
+        dataStore = data.results;
+        dataCopy = dataStore;
+      },
+      error: function (data) {
+        // see: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+        console.error('chatterbox: Get no work');
+      }
+    });
+  }
+
+
+ var rooms = {};
+
+  $(".refresh").click(function(e){
+    e.preventDefault();
+    // var oldLength = dataStore.length;
+    getMsg();
+    callMsg();
+  });
+  getMsg();
+  var callMsg = function(num){
+    num = num || 0;
+
+    for (var i  = num; i< dataStore.length; i++){
+      var rName = filter(dataStore[i].room);
+
+      if( !rooms.hasOwnProperty(rName)){
+        rooms[rName] = 1;
+      } else {
+        rooms[rName] += 1;
+      }
+      $('.messages').append('<div>').text(dataStore[i].username);
+      // $('.messages').append('<div>' + filter(dataStore[i].username)+ " : "+ filter(dataStore[i].createdAt) + '<p>'+ filter(dataStore[i].text)+'</p>'+'</div>');
+    }
+    for( var key in rooms ){
+      console.log(key);
+      $('.dropList').append('<option>'+ key +'</option>');
+    }
+  }
+ setTimeout(function(){
+  callMsg();
+ },3000);
+
+ var filter = function (input){
+  $().text(input);
+  return JSON.stringify(input);
+
+ };
+  postLots();
+
+});
+
 
