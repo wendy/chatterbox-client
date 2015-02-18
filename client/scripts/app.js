@@ -48,6 +48,7 @@ app.fetch = function (){ //this is getMSG()
 };
 app.clearMessages = function (){
   $('#chats').text('');
+  $('.messages').text('');
 };
 app.addMessage = function (message){
   this.send(message);
@@ -83,7 +84,12 @@ app.callMsg = function(){
 
 }
 
+ var rooms = {};
+
+
+
 $(document).ready(function (){
+  app.init();
   // YOUR CODE HERE:
   // var postLots = function (){
   //   for (var i = 0; i<100; i++){
@@ -105,20 +111,21 @@ $(document).ready(function (){
 
 
 
- var rooms = {};
-
   $(".refresh").click(function(e){
     e.preventDefault();
     // var oldLength = dataStore.length;
+    rooms = {};
+    $('.dropList').text('')
+    console.log(rooms);
     app.fetch();
     callMsg();
   });
 
 
-  callMsg = function(num){
-    num = num || 0;
+  callMsg = function(filter){
+    filter = filter || true;
 
-    for (var i  = num; i< app.dataStore.length; i++){
+    for (var i  = 0; i< app.dataStore.length; i++){
       var rName = app.dataStore[i].roomname;
 
       if( !rooms.hasOwnProperty(rName)){
@@ -126,15 +133,16 @@ $(document).ready(function (){
       } else {
         rooms[rName] += 1;
       }
-      // debugger;
-      $('.messages').append('<div class="msgs"></div');
-      $($('.msgs')[i]).append('<span class="username"></span><p></p>')
-      $( $('.username')[i] ).text(app.dataStore[i].username).on('click', function() {
-        app.addFriend(this.innerHTML);
-      });
-      $($('p')[i]).text(app.dataStore[i].text);
-      // $('.messages').append('<div>' + filter(app.dataStore[i].username)+ " : "+ filter(app.dataStore[i].createdAt) + '<p>'+ filter(app.dataStore[i].text)+'</p>'+'</div>');
+      if( filter === rName || filter === true){
+        $('.messages').append('<div class="msgs"></div');
+        $($('.msgs')[i]).append('<span class="username"></span><p></p>')
+        $( $('.username')[i] ).text(app.dataStore[i].username).on('click', function() {
+          app.addFriend(this.innerHTML);
+        });
+        $($('p')[i]).text(app.dataStore[i].text);
+      }
     }
+
     // $('.username').on('click', function(){
     //   app.addFriend(this.innerHTML);
     // })
@@ -146,13 +154,13 @@ $(document).ready(function (){
     }
   }
 
-  $('.dropL').click(function(){
-    console.log('got clicked');
-    app.addFriend(this.innerHTML);
-  })
+  $('select').on('change', function(){
+    var roomname = this.options[this.selectedIndex].innerHTML;
+    app.clearMessages();
+    console.log('heere')
+    callMsg(roomname);
 
-
-
+  });
 
   // postLots();
 
